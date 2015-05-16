@@ -4,7 +4,8 @@ class Brain
     setup_ops
     len = @contents.size
     while @pos < len
-      @ops[@contents[@pos]].call
+      char = @contents[@pos]
+      @ops[@contents[@pos]].call if @ops.keys.include? char
       @pos += 1
     end
     puts
@@ -21,7 +22,7 @@ class Brain
     @ops['.'] = ->{ print @data[@ptr].chr }
     @ops['['] = ->{ @loop_start = @pos }
     @ops[']'] = ->{ @pos = @loop_start if @data[@ptr] > 0 }
-    @ops[','] = ->{ @data[@ptr] = gets.chomp.ord }
+    @ops[','] = ->{ @data[@ptr] = gets[0].ord }
   end
 
   def self.init(file)
