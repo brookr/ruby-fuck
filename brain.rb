@@ -21,11 +21,12 @@ class Brain
     @ops['.'] = ->{ print @data[@ptr].chr }
     @ops['['] = ->{ @loop_start = @pos }
     @ops[']'] = ->{ @pos = @loop_start if @data[@ptr] > 0 }
+    @ops[','] = ->{ @data[@ptr] = gets.chomp.ord }
   end
 
   def self.init(file)
     @ptr, @pos, @loop_start = 0, 0, 0
-    @data = Array.new(100) { 0 }
+    @data = Array.new(20) { 0 }
     @contents = File.open(file) do |f|
       f.each_line.to_a.reduce('') { |acc, line| acc + line.chomp }
     end
