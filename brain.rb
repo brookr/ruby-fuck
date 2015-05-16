@@ -5,10 +5,9 @@ class Brain
     len = @contents.size
     while @pos < len
       char = @contents[@pos]
-      @ops[@contents[@pos]].call if @ops.keys.include? char
+      @ops[char].call if @ops.keys.include? char
       @pos += 1
     end
-    puts
   end
 
   private
@@ -17,17 +16,34 @@ class Brain
     @ops = {}
     @ops['>'] = ->{ @ptr += 1 }
     @ops['<'] = ->{ @ptr -= 1 }
-    @ops['+'] = ->{ @data[@ptr] += 1 }
-    @ops['-'] = ->{ @data[@ptr] -= 1 }
+    @ops['+'] = ->{ @data[@ptr] = (@data[@ptr] + 1) % 256 }
+    @ops['-'] = ->{ @data[@ptr] = (@data[@ptr] - 1) % 256 }
     @ops['.'] = ->{ print @data[@ptr].chr }
-    @ops['['] = ->{ @loop_start = @pos }
-    @ops[']'] = ->{ @pos = @loop_start if @data[@ptr] > 0 }
     @ops[','] = ->{ @data[@ptr] = gets[0].ord }
+    @ops['['] = ->{ 
+      if @data[@ptr] == 0
+        @pos += 1
+        while @depth > 0 || @contents[@pos] != ']'
+          @depth += 1 if @contents[@pos] == '['
+          @depth -= 1 if @contents[@pos] == ']'
+          @pos += 1
+        end
+      end
+    }
+    @ops[']'] = ->{ 
+      @pos -= 1
+      while @depth > 0 || @contents[@pos] != '['
+        @depth += 1 if @contents[@pos] == ']'
+        @depth -= 1 if @contents[@pos] == '['
+        @pos -= 1
+      end
+      @pos -= 1
+    }
   end
 
   def self.init(file)
-    @ptr, @pos, @loop_start = 0, 0, 0
-    @data = Array.new(20) { 0 }
+    @ptr, @pos, @depth = 0, 0, 0
+    @data = Array.new(27) { 0 }
     @contents = File.open(file) do |f|
       f.each_line.to_a.reduce('') { |acc, line| acc + line.chomp }
     end
